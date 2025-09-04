@@ -14,13 +14,12 @@ function NotificacaoComponent() {
     try{
       const idUnico = uuidv4();
       const formatedText = {
+        mensagemId: idUnico,
         notification: text,
-        uuid: idUnico
       }
       const response = await api.post("/api/notificacoes", formatedText)
-      console.log(response)
-      setTextHistory([...textHistory, formatedText])
-      console.log([...textHistory, formatedText])
+      console.log(response.data)
+      setTextHistory([...textHistory, response.data])
     } catch (err) {
       console.log(err)
     }
@@ -31,18 +30,18 @@ function NotificacaoComponent() {
 
   return (
     <div>
+      <h1>Mensagens enviadas</h1>
       <form action="" onSubmit={handleSubmit}>
-        <div>
+        <div style={{marginBottom: "10px"}}>
           <input type="text" value={text} onChange={({target}) => setText(target.value)} placeholder="Digite uma mensagem"/>
         </div>
         <button type="submit">Enviar Notificação</button>
       </form>
       <div>
-        <h1>Mensagens enviadas</h1>
         <ul style={{listStyle: "none"}}>
           {textHistory.map((message) => (
-            <li key={message.uuid}>
-              <p>{message.notification}</p>
+            <li key={message.mensagemId}>
+              <p>Mensagem: {message.notification} - Status de envio: {message.status}</p>
             </li>
           ))}
         </ul>

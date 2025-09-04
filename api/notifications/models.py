@@ -2,9 +2,13 @@ from django.db import models
 import uuid
 
 class Notification(models.Model):
+    class NotificationStatus(models.TextChoices):
+        QUEUED = "queued", "Na fila"
+        DELIVERED = "delivered", "Entregue"
+
+    status = models.CharField(max_length=20, choices=NotificationStatus.choices, default=NotificationStatus.QUEUED)
     notification = models.TextField()
     uuid = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
-    status = models.CharField(max_length=20, default="Pendente")
     created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
     updated_at = models.DateTimeField(auto_now=True, null=True, blank=True)
 

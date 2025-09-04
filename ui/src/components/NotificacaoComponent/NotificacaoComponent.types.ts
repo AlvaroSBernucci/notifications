@@ -1,4 +1,5 @@
 export interface Message {
   notification: string;
-  uuid: string;
+  mensagemId: string;
+  status?: string
 }

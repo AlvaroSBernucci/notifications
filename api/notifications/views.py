@@ -13,17 +13,20 @@ class NotificationView(viewsets.ModelViewSet):
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        new_notification = serializer.save()
 
         try:
+            temp_notification = Notification(notification=serializer.validated_data["notification"])
             exchange_name = "fila.notificacao.entrada.alvaro"
             body = {
-                "mensagemId": str(new_notification.uuid), 
-                "conteudoMensagem": new_notification.notification
+                "mensagemId": str(temp_notification.uuid), 
+                "conteudoMensagem": temp_notification.notification
             }
             publish = RabbitPublisher(exchange_name)
             publish.send_message(body)
-            return Response({"status": new_notification.status, "mensagemId": new_notification.uuid},
+
+            temp_notification.status = Notification.NotificationStatus.QUEUED
+            temp_notification.save()
+            return Response({"status": temp_notification.get_status_display(), "mensagemId": temp_notification.uuid, "notification": temp_notification.notification},
                 status=status.HTTP_202_ACCEPTED)
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
